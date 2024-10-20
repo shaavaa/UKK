@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root@localhost:3306/cafe"
+}
+
+model user {
+  id_user   Int         @id @default(autoincrement())
+  nama_user String      @default("")
+  role      role        @default(admin)
+  username  String      @default("")
+  password  String      @default("")
+  createdAt DateTime    @default(now())
+  updateAt  DateTime    @updatedAt
+  transaksi transaksi[]
+}
+
+model meja {
+  id_meja   Int         @id @default(autoincrement())
+  no_meja   String      @default("")
+  createdAt DateTime    @default(now())
+  updateAt  DateTime    @updatedAt
+  transaksi transaksi[]
+}
+
+model menu {
+  id_menu          Int                @id @default(autoincrement())
+  nama_menu        String             @default("")
+  jenis            Jenis              @default(makanan)
+  deskripsi        String             @default("") @db.Text
+  gambar           String             @default("")
+  harga            Float              @default(0) @db.Double
+  createdAt        DateTime           @default(now())
+  updateAt         DateTime           @updatedAt
+  detail_transaksi detail_transaksi[]
+}
+
+model transaksi {
+  id_transaksi     Int                @id @default(autoincrement())
+  tgl_transaksi    DateTime           @default(now()) 
+  id_user          Int                @default(0)
+  id_meja          Int                @default(0)
+  nama_pelanggan   String             @default("")
+  status           status             @default(belum_bayar)
+  createdAt        DateTime           @default(now())
+  updateAt         DateTime           @updatedAt
+  user_detail      user               @relation(fields: [id_user], references: [id_user])
+  meja_detail      meja               @relation(fields: [id_meja], references: [id_meja])
+  detail_transaksi detail_transaksi[]
+}
+
+model detail_transaksi {
+  id_detail        Int       @id @default(autoincrement())
+  id_transaksi     Int       @default(0)
+  id_menu          Int       @default(0)
+  jumlah           Int       @default(0)
+  harga            Float     @default(0) @db.Double
+  createdAt        DateTime  @default(now())
+  updateAt         DateTime  @updatedAt
+  transaksi_detail transaksi @relation(fields: [id_transaksi], references: [id_transaksi])
+  menu_detail      menu      @relation(fields: [id_menu], references: [id_menu])
+}
+
+enum Jenis {
+  makanan
+  minuman
+}
+
+enum role {
+  admin
+  kasir
+  manajer
+}
+
+enum status {
+  belum_bayar
+  lunas
+}
+ 
